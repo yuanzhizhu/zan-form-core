@@ -65,7 +65,7 @@ const getSlotMap = $root => {
 };
 
 const zanForm = (schema, formInstance) => $slotsElementsFrag => {
-  const values = zentForm.howToGetValues(formInstance);
+  const values = zanForm.howToGetValues(formInstance);
   const slotMap = getSlotMap($slotsElementsFrag);
   const genKeyByIdentifier = genKeyFn();
 
