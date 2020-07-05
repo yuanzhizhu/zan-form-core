@@ -327,9 +327,8 @@ var getSlotMap = function getSlotMap($root) {
   return slotMap;
 };
 
-var zanForm = function zanForm(schema, formInstance) {
+var zanForm = function zanForm(schema, values) {
   return function ($slotsElementsFrag) {
-    var values = formInstance.props.zentForm.getFormValues();
     var slotMap = getSlotMap($slotsElementsFrag);
     var genKeyByIdentifier = genKeyFn();
     var formElement = schema.map(function (componentDesc) {
