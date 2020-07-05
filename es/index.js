@@ -244,7 +244,7 @@ var componentDecorator = function componentDecorator(Component) {
   });
 };
 
-var componentLib = {};
+var componentLib = {}; // 注册组件
 
 var register = function register(name, component) {
   componentLib[name] = componentDecorator(component);
@@ -325,10 +325,45 @@ var getSlotMap = function getSlotMap($root) {
 
   travel($root);
   return slotMap;
+}; // 设置表单值
+
+
+var setValues = function setValues(data, formInstance, callback) {
+  if (data) {
+    var prevValues = null;
+
+    var setValuesAsync = function setValuesAsync() {
+      return setTimeout(function () {
+        var values = zanForm.howToGetValues(formInstance);
+
+        if (JSON.stringify(prevValues) !== JSON.stringify(values)) {
+          prevValues = values;
+          zanForm.howToSetValues(formInstance, data);
+          setValuesAsync();
+        } else {
+          callback && callback();
+        }
+      }, 0);
+    };
+
+    setValuesAsync();
+  }
 };
 
 var zanForm = function zanForm(schema, formInstance) {
   return function ($slotsElementsFrag) {
+    if (!zanForm.howToGetValues) {
+      throw new Error("请定义zanForm.howToGetValues");
+    }
+
+    if (!zanForm.howToSetValues) {
+      throw new Error("请定义zanForm.howToSetValues");
+    }
+
+    if (!zanForm.onProps) {
+      throw new Error("请定义zanForm.onProps");
+    }
+
     var values = zanForm.howToGetValues(formInstance);
     var slotMap = getSlotMap($slotsElementsFrag);
     var genKeyByIdentifier = genKeyFn();
@@ -351,7 +386,7 @@ var zanForm = function zanForm(schema, formInstance) {
         }, slotMap[_slot]);
       } else {
         validComponentDesc(componentDesc);
-        zanForm.onProps && zanForm.onProps(props);
+        zanForm.onProps(props, _component);
 
         var _key = genKeyByIdentifier(_name);
 
@@ -375,5 +410,9 @@ var zanForm = function zanForm(schema, formInstance) {
 
 zanForm.Slot = Slot;
 zanForm.register = register;
+zanForm.setValues = setValues;
+zanForm.howToGetValues = null;
+zanForm.howToSetValues = null;
+zanForm.onProps = null;
 
 export default zanForm;

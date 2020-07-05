@@ -5,6 +5,7 @@ import componentDecorator from "./componentDecorator";
 
 const componentLib = {};
 
+// 注册组件
 const register = (name, component) => {
   componentLib[name] = componentDecorator(component);
 };
@@ -64,7 +65,37 @@ const getSlotMap = $root => {
   return slotMap;
 };
 
+// 设置表单值
+const setValues = (data, formInstance, callback) => {
+  if (data) {
+    let prevValues = null;
+
+    const setValuesAsync = () =>
+      setTimeout(() => {
+        const values = zanForm.howToGetValues(formInstance);
+        if (JSON.stringify(prevValues) !== JSON.stringify(values)) {
+          prevValues = values;
+          zanForm.howToSetValues(formInstance, data);
+          setValuesAsync();
+        } else {
+          callback && callback();
+        }
+      }, 0);
+
+    setValuesAsync();
+  }
+};
+
 const zanForm = (schema, formInstance) => $slotsElementsFrag => {
+  if (!zanForm.howToGetValues) {
+    throw new Error("请定义zanForm.howToGetValues");
+  }
+  if (!zanForm.howToSetValues) {
+    throw new Error("请定义zanForm.howToSetValues");
+  }
+  if (!zanForm.onProps) {
+    throw new Error("请定义zanForm.onProps");
+  }
   const values = zanForm.howToGetValues(formInstance);
   const slotMap = getSlotMap($slotsElementsFrag);
   const genKeyByIdentifier = genKeyFn();
@@ -88,7 +119,7 @@ const zanForm = (schema, formInstance) => $slotsElementsFrag => {
       rcEle = <React.Fragment key={key}>{slotMap[_slot]}</React.Fragment>;
     } else {
       validComponentDesc(componentDesc);
-      zanForm.onProps && zanForm.onProps(props);
+      zanForm.onProps(props, _component);
 
       const key = genKeyByIdentifier(_name);
       props.name = _name;
@@ -117,5 +148,9 @@ const zanForm = (schema, formInstance) => $slotsElementsFrag => {
 
 zanForm.Slot = Slot;
 zanForm.register = register;
+zanForm.setValues = setValues;
+zanForm.howToGetValues = null;
+zanForm.howToSetValues = null;
+zanForm.onProps = null;
 
 export default zanForm;
