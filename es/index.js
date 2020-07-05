@@ -360,7 +360,7 @@ var zanForm = function zanForm(schema, formInstance) {
       throw new Error("请定义zanForm.howToSetValues");
     }
 
-    if (!zanForm.zanForm.mapDecoratorStateToProps) {
+    if (!zanForm.mapDecoratorStateToProps) {
       throw new Error("请定义zanForm.mapDecoratorStateToProps");
     }
 
