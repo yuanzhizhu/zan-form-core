@@ -7,7 +7,10 @@ const componentLib = {};
 
 // 注册组件
 const register = (name, component) => {
-  componentLib[name] = componentDecorator(component);
+  componentLib[name] = componentDecorator(
+    component,
+    zanForm.mapDecoratorStateToProps
+  );
 };
 
 // 检验组件描述
@@ -93,6 +96,9 @@ const zanForm = (schema, formInstance) => $slotsElementsFrag => {
   if (!zanForm.howToSetValues) {
     throw new Error("请定义zanForm.howToSetValues");
   }
+  if (!zanForm.zanForm.mapDecoratorStateToProps) {
+    throw new Error("请定义zanForm.mapDecoratorStateToProps");
+  }
   if (!zanForm.onProps) {
     throw new Error("请定义zanForm.onProps");
   }
@@ -151,6 +157,7 @@ zanForm.register = register;
 zanForm.setValues = setValues;
 zanForm.howToGetValues = null;
 zanForm.howToSetValues = null;
+zanForm.mapDecoratorStateToProps = null;
 zanForm.onProps = null;
 
 export default zanForm;

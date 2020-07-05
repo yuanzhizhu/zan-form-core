@@ -1,10 +1,10 @@
 import React from "react";
 
-const componentDecorator = Component => {
+const componentDecorator = (Component, mapDecoratorStateToProps) => {
   class NewComponent extends React.Component {
     state = {
       key: Math.random().toString(36),
-      data: this.props.data
+      data: mapDecoratorStateToProps.get(this.props)
     };
 
     restart = () => {
@@ -46,7 +46,7 @@ const componentDecorator = Component => {
       const { key, data: dataFromRemote } = this.state;
 
       if (dataFromRemote) {
-        restProps.data = dataFromRemote;
+        mapDecoratorStateToProps.set(restProps, dataFromRemote);
       }
 
       return _format ? (

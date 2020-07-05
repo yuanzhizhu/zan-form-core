@@ -153,7 +153,7 @@ var Slot = /*#__PURE__*/function (_React$Component) {
   return Slot;
 }(React.Component);
 
-var componentDecorator = function componentDecorator(Component) {
+var componentDecorator = function componentDecorator(Component, mapDecoratorStateToProps) {
   var NewComponent = /*#__PURE__*/function (_React$Component) {
     _inherits(NewComponent, _React$Component);
 
@@ -172,7 +172,7 @@ var componentDecorator = function componentDecorator(Component) {
 
       _defineProperty(_assertThisInitialized(_this), "state", {
         key: Math.random().toString(36),
-        data: _this.props.data
+        data: mapDecoratorStateToProps.get(_this.props)
       });
 
       _defineProperty(_assertThisInitialized(_this), "restart", function () {
@@ -223,7 +223,7 @@ var componentDecorator = function componentDecorator(Component) {
             dataFromRemote = _this$state.data;
 
         if (dataFromRemote) {
-          restProps.data = dataFromRemote;
+          mapDecoratorStateToProps.set(restProps, dataFromRemote);
         }
 
         return _format ? _format(React.createElement(Component, _extends({
@@ -251,7 +251,7 @@ var componentDecorator = function componentDecorator(Component) {
 var componentLib = {}; // 注册组件
 
 var register = function register(name, component) {
-  componentLib[name] = componentDecorator(component);
+  componentLib[name] = componentDecorator(component, zanForm.mapDecoratorStateToProps);
 }; // 检验组件描述
 
 
@@ -364,6 +364,10 @@ var zanForm = function zanForm(schema, formInstance) {
       throw new Error("请定义zanForm.howToSetValues");
     }
 
+    if (!zanForm.zanForm.mapDecoratorStateToProps) {
+      throw new Error("请定义zanForm.mapDecoratorStateToProps");
+    }
+
     if (!zanForm.onProps) {
       throw new Error("请定义zanForm.onProps");
     }
@@ -417,6 +421,7 @@ zanForm.register = register;
 zanForm.setValues = setValues;
 zanForm.howToGetValues = null;
 zanForm.howToSetValues = null;
+zanForm.mapDecoratorStateToProps = null;
 zanForm.onProps = null;
 
 module.exports = zanForm;
