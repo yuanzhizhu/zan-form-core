@@ -334,11 +334,11 @@ var setValues = function setValues(data, formInstance, callback) {
 
     var setValuesAsync = function setValuesAsync() {
       return setTimeout(function () {
-        var values = zanForm.howToGetValues(formInstance);
+        var values = zanForm.howToGetFormValues(formInstance);
 
         if (JSON.stringify(prevValues) !== JSON.stringify(values)) {
           prevValues = values;
-          zanForm.howToSetValues(formInstance, data);
+          zanForm.howToSetFormValues(formInstance, data);
           setValuesAsync();
         } else {
           callback && callback();
@@ -352,12 +352,16 @@ var setValues = function setValues(data, formInstance, callback) {
 
 var zanForm = function zanForm(schema, formInstance) {
   return function ($slotsElementsFrag) {
-    if (!zanForm.howToGetValues) {
-      throw new Error("请定义zanForm.howToGetValues");
+    if (!zanForm.howToGetFormValues) {
+      throw new Error("请定义zanForm.howToGetFormValues");
     }
 
-    if (!zanForm.howToSetValues) {
-      throw new Error("请定义zanForm.howToSetValues");
+    if (!zanForm.howToSetFormValues) {
+      throw new Error("请定义zanForm.howToSetFormValues");
+    }
+
+    if (!zanForm.howToRemoveFormItem) {
+      throw new Error("请定义zanForm.howToRemoveFormItem");
     }
 
     if (!zanForm.mapDecoratorStateToProps) {
@@ -368,7 +372,7 @@ var zanForm = function zanForm(schema, formInstance) {
       throw new Error("请定义zanForm.onProps");
     }
 
-    var values = zanForm.howToGetValues(formInstance);
+    var values = zanForm.howToGetFormValues(formInstance);
     var slotMap = getSlotMap($slotsElementsFrag);
     var genKeyByIdentifier = genKeyFn();
     var formElement = schema.map(function (componentDesc) {
@@ -406,7 +410,7 @@ var zanForm = function zanForm(schema, formInstance) {
       }
 
       var showComponent = _show ? _show(values) : true;
-      return showComponent ? rcEle : null;
+      return showComponent ? rcEle : zanForm.howToRemoveFormItem(formInstance, _name);
     });
     return formElement;
   };
@@ -415,8 +419,9 @@ var zanForm = function zanForm(schema, formInstance) {
 zanForm.Slot = Slot;
 zanForm.register = register;
 zanForm.setValues = setValues;
-zanForm.howToGetValues = null;
-zanForm.howToSetValues = null;
+zanForm.howToGetFormValues = null;
+zanForm.howToSetFormValues = null;
+zanForm.howToRemoveFormItem = null;
 zanForm.mapDecoratorStateToProps = null;
 zanForm.onProps = null;
 

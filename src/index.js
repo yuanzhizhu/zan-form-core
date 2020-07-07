@@ -75,10 +75,10 @@ const setValues = (data, formInstance, callback) => {
 
     const setValuesAsync = () =>
       setTimeout(() => {
-        const values = zanForm.howToGetValues(formInstance);
+        const values = zanForm.howToGetFormValues(formInstance);
         if (JSON.stringify(prevValues) !== JSON.stringify(values)) {
           prevValues = values;
-          zanForm.howToSetValues(formInstance, data);
+          zanForm.howToSetFormValues(formInstance, data);
           setValuesAsync();
         } else {
           callback && callback();
@@ -90,11 +90,14 @@ const setValues = (data, formInstance, callback) => {
 };
 
 const zanForm = (schema, formInstance) => $slotsElementsFrag => {
-  if (!zanForm.howToGetValues) {
-    throw new Error("请定义zanForm.howToGetValues");
+  if (!zanForm.howToGetFormValues) {
+    throw new Error("请定义zanForm.howToGetFormValues");
   }
-  if (!zanForm.howToSetValues) {
-    throw new Error("请定义zanForm.howToSetValues");
+  if (!zanForm.howToSetFormValues) {
+    throw new Error("请定义zanForm.howToSetFormValues");
+  }
+  if (!zanForm.howToRemoveFormItem) {
+    throw new Error("请定义zanForm.howToRemoveFormItem");
   }
   if (!zanForm.mapDecoratorStateToProps) {
     throw new Error("请定义zanForm.mapDecoratorStateToProps");
@@ -102,7 +105,7 @@ const zanForm = (schema, formInstance) => $slotsElementsFrag => {
   if (!zanForm.onProps) {
     throw new Error("请定义zanForm.onProps");
   }
-  const values = zanForm.howToGetValues(formInstance);
+  const values = zanForm.howToGetFormValues(formInstance);
   const slotMap = getSlotMap($slotsElementsFrag);
   const genKeyByIdentifier = genKeyFn();
 
@@ -146,7 +149,9 @@ const zanForm = (schema, formInstance) => $slotsElementsFrag => {
 
     const showComponent = _show ? _show(values) : true;
 
-    return showComponent ? rcEle : null;
+    return showComponent
+      ? rcEle
+      : zanForm.howToRemoveFormItem(formInstance, _name);
   });
 
   return formElement;
@@ -155,8 +160,9 @@ const zanForm = (schema, formInstance) => $slotsElementsFrag => {
 zanForm.Slot = Slot;
 zanForm.register = register;
 zanForm.setValues = setValues;
-zanForm.howToGetValues = null;
-zanForm.howToSetValues = null;
+zanForm.howToGetFormValues = null;
+zanForm.howToSetFormValues = null;
+zanForm.howToRemoveFormItem = null;
 zanForm.mapDecoratorStateToProps = null;
 zanForm.onProps = null;
 
