@@ -149,7 +149,7 @@ var Slot = /*#__PURE__*/function (_React$Component) {
   return Slot;
 }(React.Component);
 
-var componentDecorator = function componentDecorator(Component, mapDecoratorStateToProps) {
+var componentDecorator = function componentDecorator(Component, mapDecoratorStateToProps, beforeRemoveFormItem) {
   var NewComponent = /*#__PURE__*/function (_React$Component) {
     _inherits(NewComponent, _React$Component);
 
@@ -172,6 +172,8 @@ var componentDecorator = function componentDecorator(Component, mapDecoratorStat
       });
 
       _defineProperty(_assertThisInitialized(_this), "restart", function () {
+        beforeRemoveFormItem && beforeRemoveFormItem(_this.props.formInstance, _this.props.name);
+
         _this.setState({
           key: Math.random().toString(36)
         });
@@ -212,7 +214,8 @@ var componentDecorator = function componentDecorator(Component, mapDecoratorStat
             _format = _this$props2._format,
             _subscribe = _this$props2._subscribe,
             forwardedRef = _this$props2.forwardedRef,
-            restProps = _objectWithoutProperties(_this$props2, ["_fetch_data", "_values", "_format", "_subscribe", "forwardedRef"]);
+            formInstance = _this$props2.formInstance,
+            restProps = _objectWithoutProperties(_this$props2, ["_fetch_data", "_values", "_format", "_subscribe", "forwardedRef", "formInstance"]);
 
         var _this$state = _this.state,
             key = _this$state.key,
@@ -247,7 +250,7 @@ var componentDecorator = function componentDecorator(Component, mapDecoratorStat
 var componentLib = {}; // 注册组件
 
 var register = function register(name, component) {
-  componentLib[name] = componentDecorator(component, zanForm.mapDecoratorStateToProps);
+  componentLib[name] = componentDecorator(component, zanForm.mapDecoratorStateToProps, zanForm.beforeRemoveFormItem);
 }; // 检验组件描述
 
 
@@ -360,10 +363,6 @@ var zanForm = function zanForm(schema, formInstance) {
       throw new Error("请定义zanForm.howToSetFormValues");
     }
 
-    if (!zanForm.howToRemoveFormItem) {
-      throw new Error("请定义zanForm.howToRemoveFormItem");
-    }
-
     if (!zanForm.mapDecoratorStateToProps) {
       throw new Error("请定义zanForm.mapDecoratorStateToProps");
     }
@@ -402,6 +401,7 @@ var zanForm = function zanForm(schema, formInstance) {
         var Component = componentLib[_component];
         rcEle = React.createElement(Component, _extends({
           key: _key,
+          formInstance: formInstance,
           _format: _format,
           _values: values,
           _subscribe: _subscribe,
@@ -410,7 +410,13 @@ var zanForm = function zanForm(schema, formInstance) {
       }
 
       var showComponent = _show ? _show(values) : true;
-      return showComponent ? rcEle : zanForm.howToRemoveFormItem(formInstance, _name);
+
+      if (showComponent) {
+        return rcEle;
+      } else {
+        zanForm.beforeRemoveFormItem && zanForm.beforeRemoveFormItem(formInstance, _name);
+        return null;
+      }
     });
     return formElement;
   };
@@ -421,7 +427,7 @@ zanForm.register = register;
 zanForm.setValues = setValues;
 zanForm.howToGetFormValues = null;
 zanForm.howToSetFormValues = null;
-zanForm.howToRemoveFormItem = null;
+zanForm.beforeRemoveFormItem = null;
 zanForm.mapDecoratorStateToProps = null;
 zanForm.onProps = null;
 

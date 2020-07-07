@@ -9,7 +9,8 @@ const componentLib = {};
 const register = (name, component) => {
   componentLib[name] = componentDecorator(
     component,
-    zanForm.mapDecoratorStateToProps
+    zanForm.mapDecoratorStateToProps,
+    zanForm.beforeRemoveFormItem
   );
 };
 
@@ -96,9 +97,6 @@ const zanForm = (schema, formInstance) => $slotsElementsFrag => {
   if (!zanForm.howToSetFormValues) {
     throw new Error("请定义zanForm.howToSetFormValues");
   }
-  if (!zanForm.howToRemoveFormItem) {
-    throw new Error("请定义zanForm.howToRemoveFormItem");
-  }
   if (!zanForm.mapDecoratorStateToProps) {
     throw new Error("请定义zanForm.mapDecoratorStateToProps");
   }
@@ -138,6 +136,7 @@ const zanForm = (schema, formInstance) => $slotsElementsFrag => {
       rcEle = (
         <Component
           key={key}
+          formInstance={formInstance}
           _format={_format}
           _values={values}
           _subscribe={_subscribe}
@@ -149,9 +148,13 @@ const zanForm = (schema, formInstance) => $slotsElementsFrag => {
 
     const showComponent = _show ? _show(values) : true;
 
-    return showComponent
-      ? rcEle
-      : zanForm.howToRemoveFormItem(formInstance, _name);
+    if (showComponent) {
+      return rcEle;
+    } else {
+      zanForm.beforeRemoveFormItem &&
+        zanForm.beforeRemoveFormItem(formInstance, _name);
+      return null;
+    }
   });
 
   return formElement;
@@ -162,7 +165,7 @@ zanForm.register = register;
 zanForm.setValues = setValues;
 zanForm.howToGetFormValues = null;
 zanForm.howToSetFormValues = null;
-zanForm.howToRemoveFormItem = null;
+zanForm.beforeRemoveFormItem = null;
 zanForm.mapDecoratorStateToProps = null;
 zanForm.onProps = null;
 

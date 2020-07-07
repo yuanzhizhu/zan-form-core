@@ -1,6 +1,10 @@
 import React from "react";
 
-const componentDecorator = (Component, mapDecoratorStateToProps) => {
+const componentDecorator = (
+  Component,
+  mapDecoratorStateToProps,
+  beforeRemoveFormItem
+) => {
   class NewComponent extends React.Component {
     state = {
       key: Math.random().toString(36),
@@ -8,6 +12,8 @@ const componentDecorator = (Component, mapDecoratorStateToProps) => {
     };
 
     restart = () => {
+      beforeRemoveFormItem &&
+        beforeRemoveFormItem(this.props.formInstance, this.props.name);
       this.setState({ key: Math.random().toString(36) });
       this.getInitDataFromRemote();
     };
@@ -40,6 +46,7 @@ const componentDecorator = (Component, mapDecoratorStateToProps) => {
         _format,
         _subscribe,
         forwardedRef,
+        formInstance,
         ...restProps
       } = this.props;
 

@@ -1,6 +1,6 @@
 {
   "name": "zan-form-core",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "zan-form核心库",
   "main": "cjs/index.js",
   "module": "es/index.js",
